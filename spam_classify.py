@@ -19,8 +19,10 @@ from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 import re
 
+
 #### DATA CLEANING
 p_stemmer = PorterStemmer()
+Wn_lemmatizer = WordNetLemmatizer()
 corpus =[]
 
 for i in range(0,len(messages)):
@@ -29,7 +31,8 @@ for i in range(0,len(messages)):
     review = review.split() # Breaking Sentences into Words
     # Checking if the words are present in stopWords List and only if they are
     # NOT present , sending that word to be Stemmed / lemmatized
-    review = [p_stemmer.stem(word) for word in review if word not in set(stopwords.words('english'))]
+    #review = [p_stemmer.stem(word) for word in review if word not in set(stopwords.words('english'))]
+    review = [Wn_lemmatizer.lemmatize(word) for word in review if word not in set(stopwords.words('english'))]
     # Joining back the lemmatized or Stemmed words back into a sentence
     review = " ".join(review)
     # Appending Sentences into a new List
@@ -38,7 +41,7 @@ for i in range(0,len(messages)):
     
 #### Converting Text Data to Model Understandable VECTORS
 from sklearn.feature_extraction.text import CountVectorizer
-cv = CountVectorizer(max_features=5000)  # Add Min DF and check 
+cv = CountVectorizer(max_features=4500) 
 X = cv.fit_transform(corpus).toarray()
 
 # Converting Dependant Yi to Numerical value
@@ -50,7 +53,7 @@ y =y.iloc[:, 1] # Get the Values for SPAM alone
 ##### Divide  Data to Train and Test
 
 from sklearn.model_selection import train_test_split
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=0)
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.3,random_state=0)
 
 #### Training Our Model
 from sklearn.naive_bayes import MultinomialNB
@@ -68,6 +71,6 @@ conf = confusion_matrix(y_test,y_pred)
 from sklearn.metrics import accuracy_score
 accuracy = accuracy_score(y_test,y_pred)
 
-print("Your Model is {0}% Accurate".format(accuracy))
+print("Your Model is {0}% Accurate".format(round((accuracy*100),2)))
 
 
